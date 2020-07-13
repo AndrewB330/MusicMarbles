@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" type="text/css" href="styles/reset.css">
+    <link rel="stylesheet" type="text/css" href="styles/main.css">
+
+    <script src="scripts/libs/audiosynth.js"></script>
+    <script src="scripts/libs/tone.min.js"></script>
+    <script src="midi_files/song2.js"></script>
+    <script src="wasm/module.js"></script>
+</head>
+<body>
+
+    <canvas id="main-canvas"></canvas>
+
+    <script src="scripts/canvas_helper.js"></script>
+    <script src="scripts/wasm_api.js"></script>
+    <script src="scripts/main.js"></script>
+
+    <div style="position: absolute; top: 10px; left: 10px;" onclick="run_all()" class="btn">Run all</div>
+
+</body>
+</html>

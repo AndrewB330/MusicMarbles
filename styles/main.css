@@ -1,0 +1,20 @@
+html, body {
+    overflow: hidden;
+    font-family: Verdana, serif;
+    font-size: 24px;
+}
+
+.btn {
+    padding: 5px;
+    border: 1px solid #404040;
+    border-radius: 2px;
+}
+
+.btn:hover {
+    cursor: pointer;
+    border: 1px solid #101010;
+    background-color: #CCCCCC;
+}
+.btn:active {
+    background-color: #AAAAAA;
+}
