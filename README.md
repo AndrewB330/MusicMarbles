@@ -1,6 +1,6 @@
 
 # CHECK THE VIDEO
-[**YouTube video (!!)**](https://www.youtube.com/watch?v=yB-my6OsfvA)
+[**My YouTube channel (!!)**](https://www.youtube.com/channel/UCd5z_a5j7mKFe-ynUEgnr_Q)
 
 # Music Marbles 
 
