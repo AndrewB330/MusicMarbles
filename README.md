@@ -5,7 +5,13 @@
 ![Logo](/resources/logo_small_.png?raw=true)
 
 Creating music using falling marbles on automatically
-generated 2d map with obstacles.
+generated 2D map with obstacles.
+
+- Recursive map generator
+- Simplified physics engine
+- C++ for high performance
+- Vanilla HTML5 Canvas for visualization
+
 
 **[[Alert]] This was written in a few days so right now the code in this repository is not clean, 
 I'm refactoring and cleaning it right now and will post it later this or next week.**
@@ -16,13 +22,15 @@ Live demo is available by this link: https://andrewb330.github.io/MusicMarbles/i
 YouTube video: https://youtu.be/yB-my6OsfvA
 
 
-# Engine
-In this project, we are using our own simplified physics engine.
+# Physics engine
+In this project, we are using our own simplified physics engine. It is written on C++ and
+compiled with emscripten to work in your browser.
 Right now engine supports only two types of objects: **Marbles** and **Planks**.
 Information about the world at some point in time is represented by the WorldState class.
 There is two very useful functions in this class: `simulate()` and `rewind_back()`.
 - `simulate()` - simulates one tick (15ms by default) of physics
 - `rewind_back()` - rewinds WorldState to its previous state, one tick before
+
 Here is a small example how you can use it:
 ```cpp
 WorldState state;
