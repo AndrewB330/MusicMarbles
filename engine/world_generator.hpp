@@ -20,65 +20,25 @@
  * SOFTWARE.
  */
 
+#ifndef MUSIC_MARBLES_WORLD_GENERATOR_HPP
+#define MUSIC_MARBLES_WORLD_GENERATOR_HPP
+
 #include <cmath>
-#include "world_generator.hpp"
+#include <vector>
+#include <algorithm>
+#include <random>
+#include "engine.hpp"
 
-// World that is displayed on the frontend
-WorldState main_world;
+const int MAX_TRACKS = 16;
+const int PLANK_HALF_LENGTH = 18;
 
-// WASM interface
-extern "C" {
+extern std::mt19937 rng;
 
-void update_main_world() {
-    main_world.simulate(false);
-}
+// array of tracks, track is just a list of points in time when we should hit a plank
+// but for now we are using only 0-th track (!)
+extern std::vector<std::vector<int>> tracks;
 
-void generate_world_() {
-    main_world = generate_world();
-}
+WorldState generate_world();
 
-int num_marbles() {
-    return main_world.marbles.size();
-}
 
-int num_planks() {
-    return main_world.planks.size();
-}
-
-int get_marble_x(size_t i) {
-    return main_world.marbles[i].position.x;
-}
-
-int get_marble_y(size_t i) {
-    return main_world.marbles[i].position.y;
-}
-
-int get_plank_a_x(size_t i) {
-    return main_world.planks[i].a.x;
-}
-
-int get_plank_a_y(size_t i) {
-    return main_world.planks[i].a.y;
-}
-
-int get_plank_b_x(size_t i) {
-    return main_world.planks[i].b.x;
-}
-
-int get_plank_b_y(size_t i) {
-    return main_world.planks[i].b.y;
-}
-
-int get_marble_collision(int i) {
-    return main_world.marbles_collisions[i];
-}
-
-void add_time_of_hit(int track, int time) {
-    tracks[track].push_back(time);
-}
-
-}
-
-int main() {
-    return 0;
-}
+#endif //MUSIC_MARBLES_WORLD_GENERATOR_HPP

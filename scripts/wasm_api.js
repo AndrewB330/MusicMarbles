@@ -2,9 +2,8 @@ let API = {};
 
 Module['onRuntimeInitialized'] = () => {
     // world functions
-    API.init_world = Module.cwrap('init_world', null, []);
     API.update_main_world = Module.cwrap('update_main_world', null, []);
-    API.regenerate_world = Module.cwrap('regenerate_world', null, []);
+    API.generate_world = Module.cwrap('generate_world_', null, []);
     // marbles getters
     API.num_marbles = Module.cwrap('num_marbles', 'number', []);
     API.get_marble_x = Module.cwrap('get_marble_x', 'number', ['number']);

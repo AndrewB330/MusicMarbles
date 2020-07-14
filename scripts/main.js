@@ -132,7 +132,7 @@ function run_all() {
     });
 
     if (!running) {
-        API.regenerate_world();
+        API.generate_world();
 
         for (let i = 0; i < API.num_planks(); i++) {
             PLANKS.push(API.get_plank(i));
