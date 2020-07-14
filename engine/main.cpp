@@ -40,14 +40,14 @@ WorldState main_world;
 extern "C" {
 
 void update_main_world() {
-    main_world.update(false);
+    main_world.simulate(false);
 }
 
 bool recurs(WorldState &state, int pointer = -1) {
     int simulations = 0;
 
     auto simulate = [&state, &simulations]() {
-        state.update();
+        state.simulate();
         simulations++;
     };
     auto rewind_back = [&state, &simulations] {

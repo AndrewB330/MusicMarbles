@@ -105,7 +105,7 @@ void WorldState::start() {
     marbles_collisions_history.push_back(marbles_collisions);
 }
 
-void WorldState::update(bool track_history) {
+void WorldState::simulate(bool track_history) {
     marbles_collisions.assign(marbles.size(), -1);
     for (int m_tick = 0; m_tick < MICRO_TICKS_NUM; m_tick++) {
         for (int i = 0; i < marbles.size(); i++) {

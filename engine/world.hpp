@@ -84,7 +84,7 @@ struct WorldState {
     /*
      * Simulate one tick
      */
-    void update(bool track_history = true);
+    void simulate(bool track_history = true);
 
     /*
      * Rewind one tick back in time
