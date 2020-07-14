@@ -1,6 +1,0 @@
-emcc engine/main.cpp\
-    -o wasm/module.js\
-    -O3\
-    -s EXPORTED_FUNCTIONS="['_add_sound', '_regenerate_world', '_get_duration', '_get_octave', '_get_note', '_num_sounds', '_init_world', '_update_main_world', '_num_marbles', '_num_planks', '_get_marble_x', '_get_marble_y','_get_plank_a_x', '_get_plank_a_y', '_get_plank_b_x', '_get_plank_b_y']"\
-    -s EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap']"\
-    -s ALLOW_MEMORY_GROWTH=1

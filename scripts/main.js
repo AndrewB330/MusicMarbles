@@ -22,20 +22,16 @@ let particles = [];
 let red = '#aa0836';
 let blue = '#035db4';
 
-function note_to_num(note) {
-    if (note[1] === '#')
-        return -note_to_num(note[0]);
-    return note.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
-}
-
 let trace = {};
 let trace_small = {};
 let SOUND_ARRAY = [];
+let DURATION_ARRAY = [];
 let pointer = 0;
 
 let T = 0;
 let PLANKS = [];
 let lastTime = Date.now();
+
 function update() {
     T++;
     let time = Date.now();
@@ -62,49 +58,46 @@ function update() {
         G.drawCircleFilled(pos, MARBLE_RADIUS + 1, color);
         ctx.globalAlpha = 0.4;
         ctx.globalAlpha = 0.2;
-        for(let j = 0; j < trace_small[i].length; j++) {
+        for (let j = 0; j < trace_small[i].length; j++) {
             G.drawCircleFilled(trace_small[i][trace_small[i].length - j - 1], MARBLE_RADIUS - j - 1, color);
         }
         ctx.globalAlpha = 1.0;
     }
-    let targetX = Math.min(-API.get_marble(0)[0] + canvas.width / 2, canvas.width/2 - 600);
+    // let targetX = Math.min(-API.get_marble(0)[0] + canvas.width / 2, canvas.width/2 - 600);
+    let targetX = -API.get_marble(0)[0] + canvas.width / 2;
     offset[0] = (offset[0] * 0.98 + targetX * 0.02);
     for (let i = 0; i < PLANKS.length; i++) {
-        let color = (i >= pointer ? blue: red);
+        let color = (i >= pointer ? blue : red);
         G.drawLine(PLANKS[i], color, PLANK_WIDTH * 2);
         G.drawCircleFilled(PLANKS[i][0], PLANK_WIDTH, color);
         G.drawCircleFilled(PLANKS[i][1], PLANK_WIDTH, color);
     }
 
+    for (let i = 0; i < API.num_marbles(); i++) {
+        let plank_index = API.get_marble_collision(i);
+        console.log(plank_index);
+        if (plank_index === -1)
+            continue;
+        let plank = PLANKS[plank_index];
+        let v = [(plank[0][0] + plank[1][0]) * 0.5, (plank[0][1] + plank[1][1]) * 0.5];
+        v[0] += (Math.random() - 0.5) * 5;
+        v[1] += (Math.random() - 0.5) * 5;
+        let velocity = [(Math.random() - 0.5) * 5, -Math.random() * 2 - 3];
 
-    API.get_sounds().forEach(sound => {
-        if (sound['note']) {
-            let plank = API.get_plank(sound['note'] - 1);
-            let v = [(plank[0][0] + plank[1][0])*0.5,(plank[0][1] + plank[1][1])*0.5];
-            v[0] += (Math.random() - 0.5) * 5;
-            v[1] += (Math.random() - 0.5) * 5;
-            let velocity = [(Math.random() - 0.5) * 5, -Math.random() * 2 - 3];
-
-            let duration = sound['duration'] / 1000.0;
-            psynth.triggerAttackRelease(SOUND_ARRAY[sound['note'] - 1], duration);
-            let big = SOUND_ARRAY[sound['note'] - 1].length > 1;
-            particles.push({
-                image: (big ? 2 : 1),
-                time_total: duration * 1000 * (big ? 3 : 2),
-                time_left: duration * 1000 * ( big ? 3 : 2),
-                velocity: velocity,
-                position: v
-            });
-            if (API.get_marble(0)[0] >= -100) {
-                pointer++;
-                console.log(API.get_marble(0));
-            }
-        }
-    });
+        psynth.triggerAttackRelease(SOUND_ARRAY[plank_index], DURATION_ARRAY[plank_index]);
+        let big = SOUND_ARRAY[plank_index].length > 1;
+        particles.push({
+            image: (big ? 2 : 1),
+            time_total: DURATION_ARRAY[plank_index] * 1000 * (big ? 3 : 2),
+            time_left: DURATION_ARRAY[plank_index] * 1000 * (big ? 3 : 2),
+            velocity: velocity,
+            position: v
+        });
+    }
 
     particles.forEach(p => {
         ctx.globalAlpha = Math.sqrt(p.time_left / p.time_total);
-        ctx.drawImage((p.image === 1 ? note1: note2), p.position[0] - 15 + offset[0], p.position[1] - 15 + offset[1], 30, 30);
+        ctx.drawImage((p.image === 1 ? note1 : note2), p.position[0] - 15 + offset[0], p.position[1] - 15 + offset[1], 30, 30);
         p.time_left -= dt;
         p.position[0] += p.velocity[0];
         p.position[1] += p.velocity[1];
@@ -117,32 +110,24 @@ function update() {
 }
 
 function run_all() {
-    offset[0] = canvas.width/2 - 600;
+    offset[0] = canvas.width / 2 - 600;
     let time_offset = -1000;
-    let tracks_sounds = [];
-    midi.tracks.forEach((track, track_id) => {
-        tracks_sounds[track_id] = [];
-        track.notes.forEach(note => {
-            let duration = Math.round(note.duration * 1000);
-            let time = Math.round(note.time * 1000) + time_offset;
-            let name = note.name;
-            let octave = parseInt(name.slice(-1));
-            let num = note_to_num(name.slice(0, -1));
-            tracks_sounds[track_id].push({time: time, note: num, octave: octave, duration: duration, name: name});
-        });
-    })
-
     let track_ids = [0];
-    tracks_sounds.forEach((sounds, track_id) => {
-        if (!(track_id in track_ids)) return;
-        for (let i = 0; i < Math.min(sounds.length, 100); i++) {
-            if (i > 0 && sounds[i - 1].time === sounds[i].time) {
-                SOUND_ARRAY[SOUND_ARRAY.length-1].push(sounds[i].name);
+    midi.tracks.forEach((track, track_id) => {
+        if (track_ids.findIndex(e => {
+            return e === track_id;
+        }) === -1) return;
+        let notes = track.notes;
+        for (let i = 0; i < Math.min(notes.length, 100); i++) {
+            console.log(notes[i]);
+            if (i > 0 && notes[i - 1].time === notes[i].time) {
+                SOUND_ARRAY[SOUND_ARRAY.length - 1].push(notes[i].name);
                 continue;
             }
-            sounds[i].note = SOUND_ARRAY.length + 1;
-            API.add_sound(track_id, sounds[i].time, sounds[i]);
-            SOUND_ARRAY.push([sounds[i].name]);
+            console.log(Math.round(notes[i].time * 1000) + time_offset);
+            API.add_time_of_hit(0, Math.round(notes[i].time * 1000) + time_offset);
+            SOUND_ARRAY.push([notes[i].name]);
+            DURATION_ARRAY.push(notes[i].duration);
         }
     });
 
