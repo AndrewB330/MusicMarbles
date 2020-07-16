@@ -29,16 +29,51 @@
 #include <random>
 #include "engine.hpp"
 
-const int MAX_TRACKS = 16;
-const int PLANK_HALF_LENGTH = 18;
+struct StackState {
+    int pointer;
+    int simulations = 0;
+    std::vector<int> permutation = {};
+    int index = -1;
+    bool plank_added = false;
 
-extern std::mt19937 rng;
+    explicit StackState(int pointer);
+};
 
-// array of tracks, track is just a list of points in time when we should hit a plank
-// but for now we are using only 0-th track (!)
-extern std::vector<std::vector<int>> tracks;
+class WorldGenerator {
+protected:
+    std::vector<int> track;
+    WorldState world_state;
+    double min_y = -350;
+    double max_y = 350;
+    double start_y = -340;
+public:
+    WorldGenerator(std::vector<int> track);
 
-WorldState generate_world();
+    WorldState get_world();
+};
+
+class WorldGeneratorIterative : public WorldGenerator {
+private:
+    std::vector<StackState> stack;
+public:
+    WorldGeneratorIterative(std::vector<int> track);
+
+    double get_progress();
+
+    void generate_limited(int iterations = 10000);
+};
+
+class WorldGeneratorRecursive : public WorldGenerator {
+private:
+    std::vector<int> track;
+
+    bool recurs(int pointer = -1);
+
+public:
+    WorldGeneratorRecursive(std::vector<int> track);
+
+    void generate();
+};
 
 
 #endif //MUSIC_MARBLES_WORLD_GENERATOR_HPP

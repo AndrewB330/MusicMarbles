@@ -1,3 +1,4 @@
+let MUSIC_NAME = 'In the Hall of the Mountain King';
 let midi = {
     "header": {
         "keySignatures": [

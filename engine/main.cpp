@@ -26,6 +26,12 @@
 // World that is displayed on the frontend
 WorldState main_world;
 
+
+const int MAX_TRACKS = 16;
+// array of tracks, track is just a list of points in time when we should hit a plank
+// but for now we are using only 0-th track (!)
+std::vector<std::vector<int>> TRACKS(MAX_TRACKS);
+
 // WASM interface
 extern "C" {
 
@@ -34,7 +40,9 @@ void update_main_world() {
 }
 
 void generate_world_() {
-    main_world = generate_world();
+    WorldGeneratorIterative gen(TRACKS[0]);
+    gen.generate_limited(1e9);
+    main_world = gen.get_world();
 }
 
 int num_marbles() {
@@ -74,7 +82,7 @@ int get_marble_collision(int i) {
 }
 
 void add_time_of_hit(int track, int time) {
-    tracks[track].push_back(time);
+    TRACKS[track].push_back(time);
 }
 
 }

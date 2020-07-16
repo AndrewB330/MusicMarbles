@@ -1,8 +1,6 @@
-
-[**My YouTube channel (!!)**](https://www.youtube.com/channel/UCd5z_a5j7mKFe-ynUEgnr_Q)
 # Music Marbles 
 
-![Logo](/resources/logo_small_.png?raw=true)
+![Logo](/images/logo_small_.png?raw=true)
 
 Creating music using falling marbles on automatically
 generated 2D map with obstacles.
@@ -11,10 +9,7 @@ generated 2D map with obstacles.
 - Simplified physics engine
 - C++ for high performance
 - Vanilla HTML5 Canvas for visualization
-
-
-**[[Alert]] This was written in a few days so right now the code in this repository is not clean, 
-I'm refactoring and cleaning it right now and will post it later this or next week.**
+- Tone.js for sounds
 
 # Demo
 Live demo is available by this link: https://andrewb330.github.io/MusicMarbles/index.html
@@ -48,6 +43,15 @@ while (state.elapsed_time < 2000)
 while (state.elapsed_time > 0)
     state.rewind_back();
 ```
+
+### Algorithm
+
+The algorithm for generating a map is pretty straightforward. 
+We know moments of time,  when we want a note to be played, 
+so we can add a plank to  the world just before sound should be played. 
+Basically, the algorithm is just recursive brute-force.
+
+TODO: add pseudo code
 
 ### Stack
 

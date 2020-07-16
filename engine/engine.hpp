@@ -77,7 +77,7 @@ struct WorldState {
     int time_elapsed = 0;
 
     /*
-     * Initialize before simulation
+     * Initialize before(!) simulation
      */
     void start();
 

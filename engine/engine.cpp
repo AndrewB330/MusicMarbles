@@ -112,7 +112,7 @@ void WorldState::simulate(bool track_history) {
             for (int j = i + 1; j < marbles.size(); j++) {
                 collide(marbles[i], marbles[j]);
             }
-            for (int j = 0; j < planks.size(); j ++) {
+            for (int j = 0; j < planks.size(); j++) {
                 if (collide(marbles[i], planks[j])) {
                     marbles_collisions[i] = j;
                 }

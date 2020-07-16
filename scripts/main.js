@@ -13,9 +13,9 @@ const psynth = new Tone.PolySynth(4, Tone.Synth, {}).toMaster();
 let running = false;
 
 let note1 = new Image();
-note1.src = './resources/note_1.png';
+note1.src = './images/note_1.png';
 let note2 = new Image();
-note2.src = './resources/note_2.png';
+note2.src = './images/note_2.png';
 
 let particles = [];
 
