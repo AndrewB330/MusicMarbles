@@ -84,7 +84,7 @@ function synchronize() {
 }
 
 function update() {
-    let sum_x = marbles[0][0];
+    let sum_x = (marbles[0][1] > 2000 ? 0 : marbles[0][0]);
     let targetX = -sum_x + canvas.width / 2;
     offset[0] = (offset[0] * 0.98 + targetX * 0.02);
 
