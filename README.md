@@ -21,7 +21,7 @@ YouTube video: https://youtu.be/yB-my6OsfvA
 
 
 # Physics engine
-In this project, we are using our own simplified physics engine. It is written on C++ and
+In this project, I'm using my own simplified physics engine. It is written on C++ and
 compiled with emscripten to work in your browser.
 Right now engine supports only two types of objects: **Marbles** and **Planks**.
 Information about the world at some point in time is represented by the WorldState class.
@@ -50,7 +50,7 @@ while (state.elapsed_time > 0)
 ### Algorithm
 
 The algorithm for generating a map is pretty straightforward. 
-We know moments of time,  when we want a note to be played, 
+We know moments of time, when we want a note to be played, 
 so we can add a plank to  the world just before sound should be played. 
 Basically, the algorithm is just recursive brute-force.
 
