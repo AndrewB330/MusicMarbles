@@ -25,6 +25,7 @@
 
 // World that is displayed on the frontend
 WorldState main_world;
+WorldGeneratorIterative generator({});
 
 
 const int MAX_TRACKS = 16;
@@ -39,9 +40,26 @@ void update_main_world() {
     main_world.simulate(false);
 }
 
+void generate_world_limited() {
+    generator.generate(50);
+    main_world = generator.get_world();
+}
+
+int get_generator_progress() {
+    return generator.get_progress();
+}
+
+void init_generator() {
+    generator = WorldGeneratorIterative(TRACKS[0]);
+}
+
+/*
+ * Deprecated
+ * todo: remove
+ */
 void generate_world_() {
-    WorldGeneratorIterative gen(TRACKS[0]);
-    gen.generate_limited(1e9);
+    WorldGeneratorRecursive gen(TRACKS[0]);
+    gen.generate();
     main_world = gen.get_world();
 }
 
@@ -83,6 +101,11 @@ int get_marble_collision(int i) {
 
 void add_time_of_hit(int track, int time) {
     TRACKS[track].push_back(time);
+}
+
+void reset_tracks() {
+    TRACKS.clear();
+    TRACKS.resize(MAX_TRACKS);
 }
 
 }

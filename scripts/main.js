@@ -1,144 +1,221 @@
-/*
- * ATTENTION!
- * THIS IS NOT THE FINAL VERSION OF THE CODE
- * THIS CODE IS REALLY UGLY AND UNREADABLE
- * I WILL CLEAN THIS UP AND WILL POST CLEAN CODE IN A FEW DAYS OR WEEKS
-*/
+/* MIT License
+ * Copyright (c) 2020 Andrii Borziak
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
+let track = [];
+let planks = [];
+let planks_color = [];
+let marbles = [];
+let marbles_trace = [];
+let collisions = []; // mapping from marbles to planks that were hit
+let particles = []; // additional effects
+let ready = false; // True if world fully generated
+let main_loop_running = false;
 
-let dt = 15;
-let MARBLE_RADIUS = 16;
-let PLANK_WIDTH = 4;
-const psynth = new Tone.PolySynth(4, Tone.Synth, {}).toMaster();
-let running = false;
+function load_track(midi_json) {
+    API.reset_tracks();
 
-let note1 = new Image();
-note1.src = './images/note_1.png';
-let note2 = new Image();
-note2.src = './images/note_2.png';
+    let track_id = 0;
 
-let particles = [];
+    midi_json['tracks'].forEach((track, idx) => {
+        if (track.notes.length > midi_json['tracks'][track_id].notes.length) {
+            track_id = idx;
+        }
+    });
 
-let red = '#aa0836';
-let blue = '#035db4';
+    let time_offset = 0.5 - midi_json['tracks'][track_id].notes[0].time;
 
-let trace = {};
-let trace_small = {};
-let SOUND_ARRAY = [];
-let DURATION_ARRAY = [];
-let pointer = 0;
+    let unmerged = midi_json['tracks'][track_id].notes.map(sound => {
+        return {
+            note_names: [sound.name],
+            time: sound.time + time_offset,
+            duration: sound.duration
+        }
+    });
+    track = [];
+    for (let i = 0; i < unmerged.length; i++) {
+        if (i > 0 && unmerged[i - 1].time + 4 < unmerged[i].time) {
+            break;
+        }
+        if (i > 0 && unmerged[i - 1].time === unmerged[i].time) {
+            track[track.length - 1].note_names.push(unmerged[i].note_names[0]);
+        } else {
+            console.log(unmerged[i].time * 1000);
+            API.add_time_of_hit(0, Math.round(unmerged[i].time * 1000));
+            track.push(unmerged[i]);
+        }
+    }
+}
 
-let T = 0;
-let PLANKS = [];
-let lastTime = Date.now();
+function synchronize() {
+    // we assume that array of planks do change during the simulation
+    planks = API.get_planks();
+    while (planks_color.length < planks.length)
+        planks_color.push(BLUE);
+
+    marbles = API.get_marbles();
+    marbles.forEach((marble, index) => {
+        if (marbles_trace[index] === undefined)
+            marbles_trace[index] = [];
+        marbles_trace[index].push(marble);
+        if (marbles_trace[index].length > TRACE_SIZE) {
+            marbles_trace[index].shift();
+        }
+    });
+    collisions = API.get_marble_collisions();
+}
 
 function update() {
-    T++;
-    let time = Date.now();
-    let delta = time - lastTime;
-    lastTime = time;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (T >= 100)
-        API.update_main_world(dt);
-
-    let sumX = 0;
-    for (let i = 0; i < API.num_marbles(); i++) {
-        if (!(i in trace)) {
-            trace[i] = [];
-            trace_small[i] = [];
-        }
-        let pos = API.get_marble(i);
-        sumX += pos[0];
-        //trace[i].push(pos);
-        trace_small[i].push(pos);
-        if (trace_small[i].length > 15) {
-            trace_small[i].shift();
-        }
-        let color = (i === 0 ? red : '#404040');
-        G.drawCircleFilled(pos, MARBLE_RADIUS + 1, color);
-        ctx.globalAlpha = 0.4;
-        ctx.globalAlpha = 0.2;
-        for (let j = 0; j < trace_small[i].length; j++) {
-            G.drawCircleFilled(trace_small[i][trace_small[i].length - j - 1], MARBLE_RADIUS - j - 1, color);
-        }
-        ctx.globalAlpha = 1.0;
-    }
-    // let targetX = Math.min(-API.get_marble(0)[0] + canvas.width / 2, canvas.width/2 - 600);
-    let targetX = -API.get_marble(0)[0] + canvas.width / 2;
+    let sum_x = marbles[0][0];
+    let targetX = -sum_x + canvas.width / 2;
     offset[0] = (offset[0] * 0.98 + targetX * 0.02);
-    for (let i = 0; i < PLANKS.length; i++) {
-        let color = (i >= pointer ? blue : red);
-        G.drawLine(PLANKS[i], color, PLANK_WIDTH * 2);
-        G.drawCircleFilled(PLANKS[i][0], PLANK_WIDTH, color);
-        G.drawCircleFilled(PLANKS[i][1], PLANK_WIDTH, color);
-    }
-
-    for (let i = 0; i < API.num_marbles(); i++) {
-        let plank_index = API.get_marble_collision(i);
-        console.log(plank_index);
-        if (plank_index === -1)
-            continue;
-        let plank = PLANKS[plank_index];
-        let v = [(plank[0][0] + plank[1][0]) * 0.5, (plank[0][1] + plank[1][1]) * 0.5];
-        v[0] += (Math.random() - 0.5) * 5;
-        v[1] += (Math.random() - 0.5) * 5;
-        let velocity = [(Math.random() - 0.5) * 5, -Math.random() * 2 - 3];
-
-        psynth.triggerAttackRelease(SOUND_ARRAY[plank_index], DURATION_ARRAY[plank_index]);
-        let big = SOUND_ARRAY[plank_index].length > 1;
-        particles.push({
-            image: (big ? 2 : 1),
-            time_total: DURATION_ARRAY[plank_index] * 1000 * (big ? 3 : 2),
-            time_left: DURATION_ARRAY[plank_index] * 1000 * (big ? 3 : 2),
-            velocity: velocity,
-            position: v
-        });
-    }
 
     particles.forEach(p => {
-        ctx.globalAlpha = Math.sqrt(p.time_left / p.time_total);
-        ctx.drawImage((p.image === 1 ? note1 : note2), p.position[0] - 15 + offset[0], p.position[1] - 15 + offset[1], 30, 30);
-        p.time_left -= dt;
+        p.time_left -= MS_PER_TICK;
         p.position[0] += p.velocity[0];
         p.position[1] += p.velocity[1];
         p.velocity[1] += 0.5;
     })
-    ctx.globalAlpha = 1.0;
     particles = particles.filter(p => p.time_left >= 0);
+}
 
-    setTimeout(update, Math.max(5, Math.min(2 * dt - delta, dt)));
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    marbles.forEach((marble, index) => {
+        let color = (index === 0 ? RED : '#404040');
+        G.drawCircleFilled(marble, MARBLE_RADIUS + 1, color);
+        ctx.globalAlpha = 0.2;
+        let trace_len = marbles_trace[index].length;
+        for (let j = 0; j < trace_len; j++) {
+            G.drawCircleFilled(
+                marbles_trace[index][trace_len - j - 1],
+                MARBLE_RADIUS - j * RADIUS_DECAY - 1,
+                color
+            );
+        }
+        ctx.globalAlpha = 1.0;
+    });
+
+    planks.forEach((plank, index) => {
+        let color = planks_color[index];
+        G.drawLine(plank, color, PLANK_WIDTH * 2);
+        G.drawCircleFilled(plank[0], PLANK_WIDTH, color);
+        G.drawCircleFilled(plank[1], PLANK_WIDTH, color);
+    });
+
+    particles.forEach(p => {
+        ctx.globalAlpha = Math.sqrt(p.time_left / p.time_total);
+        ctx.drawImage(
+            NOTE_IMAGES[p.image],
+            p.position[0] - PARTICLE_SIZE / 2 + offset[0],
+            p.position[1] - PARTICLE_SIZE / 2 + offset[1],
+            PARTICLE_SIZE,
+            PARTICLE_SIZE
+        );
+    })
+    ctx.globalAlpha = 1.0;
+}
+
+function generate_particle(center, plank_index, big = false) {
+    let position = [center[0] + (Math.random() - 0.5) * 5, center[1] + (Math.random() - 0.5) * 5];
+    let velocity = [(Math.random() - 0.5) * 5, -Math.random() * 2 - 3];
+
+    particles.push({
+        image: (big ? 1 : 0),
+        time_total: track[plank_index].duration * 1000 * (big ? 3 : 2),
+        time_left: track[plank_index].duration * 1000 * (big ? 3 : 2),
+        velocity: velocity,
+        position: position
+    });
+}
+
+function play_sounds() {
+    for (let i = 0; i < marbles.length; i++) {
+        let plank_index = collisions[i];
+        if (plank_index === -1)
+            continue;
+        if (i === 0) {
+            planks_color[plank_index] = RED;
+            console.log(plank_index);
+        }
+        let plank = planks[plank_index];
+        let particle_position = [
+            (plank[0][0] + plank[1][0]) * 0.5,
+            (plank[0][1] + plank[1][1]) * 0.5
+        ];
+        PIANO.triggerAttackRelease(track[plank_index].note_names, track[plank_index].duration);
+        for (let j = 0; j < track[plank_index].note_names.length; j++) {
+            generate_particle(particle_position, plank_index, j > 1);
+        }
+    }
+}
+
+
+let lastTime = Date.now();
+
+function main_loop() {
+    let time = Date.now();
+    lastTime = time;
+
+    if (!ready) {
+        API.generate_world_limited();
+        let progress = API.get_generator_progress()
+        if (progress >= 100) {
+            ready = true;
+        }
+        document.getElementById('progress-bar').style.width = `${progress}%`;
+        document.getElementById('progress-bar-text').textContent = `${progress}%`;
+    } else {
+        API.update_main_world()
+    }
+
+    synchronize();
+    update();
+    play_sounds();
+    draw();
+
+    setTimeout(main_loop, Math.max(5, Math.min(2 * MS_PER_TICK - (time - lastTime), MS_PER_TICK)));
 }
 
 function run_all() {
-    offset[0] = canvas.width / 2 - 600;
-    let time_offset = -1000;
-    let track_ids = [0];
-    midi.tracks.forEach((track, track_id) => {
-        if (track_ids.findIndex(e => {
-            return e === track_id;
-        }) === -1) return;
-        let notes = track.notes;
-        for (let i = 0; i < Math.min(notes.length, 100); i++) {
-            console.log(notes[i]);
-            if (i > 0 && notes[i - 1].time === notes[i].time) {
-                SOUND_ARRAY[SOUND_ARRAY.length - 1].push(notes[i].name);
-                continue;
-            }
-            console.log(Math.round(notes[i].time * 1000) + time_offset);
-            API.add_time_of_hit(0, Math.round(notes[i].time * 1000) + time_offset);
-            SOUND_ARRAY.push([notes[i].name]);
-            DURATION_ARRAY.push(notes[i].duration);
-        }
-    });
-
-    if (!running) {
-        API.generate_world();
-
-        for (let i = 0; i < API.num_planks(); i++) {
-            PLANKS.push(API.get_plank(i));
-        }
-
-        update();
-        running = true;
+    ready = false;
+    planks_color = [];
+    API.init_generator();
+    if (!main_loop_running) {
+        main_loop();
+        main_loop_running = true;
     }
 }
+
+window.addEventListener('load', () => {
+    let list = document.getElementById('music-list');
+    music.forEach((m, i) => {
+        let element = document.createElement('div');
+        element.classList.add('music');
+        element.innerText = m['header']['name'];
+        element.onclick = () => {
+            load_track(music[i]);
+            run_all();
+        };
+        list.append(element);
+    })
+});

@@ -9,18 +9,28 @@
 
     <script src="scripts/libs/audiosynth.js"></script>
     <script src="scripts/libs/tone.min.js"></script>
-    <script src="music/InTheHallOfMountainKing.js"></script>
+    <script src="music/music.js"></script>
     <script src="wasm/module.js"></script>
 </head>
 <body>
 
     <canvas id="main-canvas"></canvas>
+    <div style="position: absolute; left: 50%; top: 0">
+        <div class="container">
+            <div class="progress-bar-container">
+                <div id="progress-bar"></div>
+                <div id="progress-bar-text">0%</div>
+            </div>
+        </div>
+    </div>
 
     <script src="scripts/canvas_helper.js"></script>
     <script src="scripts/wasm_api.js"></script>
+    <script src="scripts/constants.js"></script>
     <script src="scripts/main.js"></script>
 
-    <div style="position: absolute; top: 10px; left: 10px;" onclick="run_all()" class="btn">Run all</div>
+    <div id="music-list">
+    </div>
 
 </body>
 </html>

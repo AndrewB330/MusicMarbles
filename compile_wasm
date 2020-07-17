@@ -1,6 +1,6 @@
 emcc engine/main.cpp engine/engine.cpp engine/world_generator.cpp\
     -o wasm/module.js\
     -O3\
-    -s EXPORTED_FUNCTIONS="['_add_time_of_hit', '_generate_world_', '_get_marble_collision', '_update_main_world', '_num_marbles', '_num_planks', '_get_marble_x', '_get_marble_y','_get_plank_a_x', '_get_plank_a_y', '_get_plank_b_x', '_get_plank_b_y']"\
+    -s EXPORTED_FUNCTIONS="['_get_generator_progress', '_init_generator', '_generate_world_limited', '_add_time_of_hit', '_generate_world_', '_reset_tracks', '_get_marble_collision', '_update_main_world', '_num_marbles', '_num_planks', '_get_marble_x', '_get_marble_y','_get_plank_a_x', '_get_plank_a_y', '_get_plank_b_x', '_get_plank_b_y']"\
     -s EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap']"\
     -s ALLOW_MEMORY_GROWTH=1

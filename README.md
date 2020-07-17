@@ -12,6 +12,9 @@ generated 2D map with obstacles.
 - Tone.js for sounds
 
 # Demo
+
+![UI](/images/ui_demo.png?raw=true)
+
 Live demo is available by this link: https://andrewb330.github.io/MusicMarbles/index.html
 
 YouTube video: https://youtu.be/yB-my6OsfvA

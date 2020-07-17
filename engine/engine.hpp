@@ -39,10 +39,10 @@
  */
 
 const int MS_PER_TICK = 15;
-const int MICRO_TICKS_NUM = 4; // Number of sub-ticks of simulation inside one tick
+const int MICRO_TICKS_NUM = 2; // Number of sub-ticks of simulation inside one tick
 const double SEC_PER_MICRO_TICK = MS_PER_TICK / 1000.0 / MICRO_TICKS_NUM;
 
-const Vec2d GRAVITY = Vec2d(0, 9.8 * 10 * 3);
+const Vec2d GRAVITY = Vec2d(0, 9.8 * 10 * 3 * 2);
 
 const int MARBLES_RADIUS = 16;
 const int PLANKS_WIDTH = 4; // todo: in fact, this is half of the width

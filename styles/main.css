@@ -18,3 +18,62 @@ html, body {
 .btn:active {
     background-color: #AAAAAA;
 }
+
+.container {
+    position: relative;
+    background-color: #F0F0F0;
+    border: 1px solid #BBBBBB;
+    border-top: 0;
+    margin-left: -50%;
+    box-sizing: border-box;
+    border-radius: 0 0 2px 2px;
+    display: inline-block;
+    padding: 4px;
+}
+
+.progress-bar-container {
+    position: relative;
+    width: 256px;
+    height: 24px;
+}
+
+#progress-bar {
+    width: 0;
+    height: 100%;
+    background-color: #2acd2a;
+}
+
+#progress-bar-text {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    text-align: center;
+    font-size: 16px;
+    line-height: 24px;
+    color: #0d400d;
+}
+
+#music-list {
+    padding: 8px 0;
+    position: absolute;
+    left: 0;
+    top: 64px;
+    background-color: #F0F0F0;
+    border: 1px solid #BBBBBB;
+    border-left: 0;
+    border-radius: 0 2px 2px 0;
+}
+
+.music {
+    font-size: 12px;
+    width: 100%;
+    padding: 4px;
+    box-sizing: border-box;
+}
+
+.music:hover {
+    background-color: #666;
+    cursor: pointer;
+    color: white;
+}

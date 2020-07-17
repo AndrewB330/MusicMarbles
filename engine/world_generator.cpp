@@ -28,9 +28,9 @@
 
 const int PRNG_SEED = 0;
 std::mt19937 GLOBAL_PRNG(PRNG_SEED);
-const int PLANK_HALF_LENGTH = 18;
+const int PLANK_HALF_LENGTH = 14;
 
-const std::vector<double> PLANK_ROTATIONS = {0, +0.15, -0.15, +0.6, -0.6, +0.3, -0.3, +0.9, -0.9, +1.3, -1.3};
+const std::vector<double> PLANK_ROTATIONS = {0, +0.15, -0.15, +0.6, -0.6, +0.3, -0.3, +0.9, -0.9, +1.1, -1.1};
 
 std::vector<int> get_random_permutation(int n) {
     std::vector<int> permutation(n);
@@ -41,7 +41,7 @@ std::vector<int> get_random_permutation(int n) {
 
 StackState::StackState(int pointer) : pointer(pointer) {}
 
-WorldGenerator::WorldGenerator(std::vector<int> track) : track(std::move(track)) {
+WorldGenerator::WorldGenerator(std::vector<int> track) : track(track) {
     world_state.marbles.push_back(Marble{Vec2d(0, start_y)});
     world_state.start();
 }
@@ -58,12 +58,23 @@ WorldGeneratorIterative::WorldGeneratorIterative(std::vector<int> track_) : Worl
     stack.push_back(StackState(-1));
 }
 
-double WorldGeneratorIterative::get_progress() {
-    return world_state.planks.size() / track.size();
+int WorldGeneratorIterative::get_progress() {
+    if (track.empty())
+        return 100;
+    return world_state.planks.size() * 100 / track.size();
 }
 
-void WorldGeneratorIterative::generate_limited(int iterations) {
+void WorldGeneratorIterative::generate(int iterations) {
     for (int iter = 0; iter < iterations && !stack.empty(); iter++) {
+        // Keep track of the max number of planks generated, and number of iterations without improvements
+        if (world_state.planks.size() > max_planks_num_generated) {
+            max_planks_num_generated = world_state.planks.size();
+            num_iterations_no_improvement = 0;
+        } else {
+            num_iterations_no_improvement++;
+        }
+
+
         StackState &stack_state = stack.back();
 
         if (stack_state.index == -1) {
@@ -117,6 +128,16 @@ void WorldGeneratorIterative::generate_limited(int iterations) {
         if (stack_state.plank_added) {
             world_state.planks.pop_back();
             stack_state.plank_added = false;
+        }
+        // Reset 10% of the generated map to shake the generator
+        if (num_iterations_no_improvement > 2000) {
+            if (world_state.planks.size() > max_planks_num_generated - 0.1 * track.size()) {
+                REWIND_BACK;
+                RETURN_FALSE;
+            } else {
+                num_iterations_no_improvement = 0;
+                max_planks_num_generated = world_state.planks.size();
+            }
         }
         stack_state.index++;
         if (stack_state.index >= stack_state.permutation.size()) {
@@ -241,7 +262,7 @@ bool WorldGeneratorRecursive::recurs(int pointer) {
     return false;
 }
 
-WorldGeneratorRecursive::WorldGeneratorRecursive(std::vector<int> track_) : WorldGenerator(track_) {
+WorldGeneratorRecursive::WorldGeneratorRecursive(std::vector<int> track) : WorldGenerator(track) {
 }
 
 void WorldGeneratorRecursive::generate() {
