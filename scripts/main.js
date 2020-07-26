@@ -20,14 +20,109 @@
  * SOFTWARE.
  */
 
+class Plank {
+    constructor(a, b) {
+        this.a = a;
+        this.b = b;
+        this.active = 0;
+
+        let delta_x = a[0] - b[0];
+        let delta_y = a[1] - b[1];
+        this.center_x = (a[0] + b[0]) * 0.5;
+        this.center_y = (a[1] + b[1]) * 0.5;
+        this.angle = Math.atan2(delta_y, delta_x) + Math.PI;
+    }
+
+    update() {
+        this.active -= MS_PER_TICK;
+    }
+
+    draw() {
+        ctx.translate(this.center_x + offset[0], this.center_y + offset[1]);
+        ctx.rotate(this.angle);
+        ctx.drawImage(this.active > 0 ? PLANK_IMAGES[1] : PLANK_IMAGES[0], -30, -10, 60, 20);
+        ctx.rotate(-this.angle);
+        ctx.translate(-this.center_x - offset[0], -this.center_y - offset[1]);
+    }
+}
+
+class Marble {
+    constructor(position) {
+        this.position = position;
+        this.trace = [];
+        this.collision = -1;
+    }
+
+    synchronize(position, collision) {
+        this.trace.push(position);
+        if (this.trace.length > TRACE_SIZE) {
+            this.trace.shift();
+        }
+        this.position = position;
+        this.collision = collision;
+    }
+
+    draw() {
+        ctx.globalAlpha = 0.05;
+        ctx.shadowColor = '#fff7c8';
+        ctx.shadowBlur = 15;
+        let trace_len = this.trace.length;
+        for (let j = 0; j < trace_len; j++) {
+            G.drawCircleFilled(
+                this.trace[trace_len - j - 1],
+                MARBLE_RADIUS - j * RADIUS_DECAY - 1,
+                '#fff7c8'
+            );
+        }
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1.0;
+
+        ctx.drawImage(
+            MARBLE_IMAGE,
+            this.position[0] - MARBLE_IMAGE_SIZE / 2 + offset[0],
+            this.position[1] - MARBLE_IMAGE_SIZE / 2 + offset[1],
+            MARBLE_IMAGE_SIZE,
+            MARBLE_IMAGE_SIZE
+        );
+    }
+}
+
+class Particle {
+    constructor(position, velocity, time) {
+        this.position = position;
+        this.velocity = velocity;
+        this.time_left = time;
+        this.time_total = time;
+    }
+
+    update() {
+        this.time_left -= MS_PER_TICK;
+        // apply velocity
+        this.position[0] += this.velocity[0];
+        this.position[1] += this.velocity[1];
+        // apply gravity
+        this.velocity[1] += 0.2;
+    }
+
+    draw() {
+        ctx.globalAlpha = Math.sqrt(this.time_left / this.time_total);
+        ctx.drawImage(
+            PARTICLE_IMAGE,
+            this.position[0] - PARTICLE_IMAGE_SIZE / 2 + offset[0],
+            this.position[1] - PARTICLE_IMAGE_SIZE / 2 + offset[1],
+            PARTICLE_IMAGE_SIZE,
+            PARTICLE_IMAGE_SIZE
+        );
+        ctx.globalAlpha = 1.0;
+    }
+}
+
 let track = [];
 let planks = [];
-let planks_color = [];
 let marbles = [];
-let marbles_trace = [];
-let collisions = []; // mapping from marbles to planks that were hit
 let particles = []; // additional effects
 let ready = false; // True if world fully generated
+let planks_loaded = false;
 let main_loop_running = false;
 
 function load_track(midi_json) {
@@ -35,19 +130,25 @@ function load_track(midi_json) {
 
     let track_id = 0;
 
+    midi_json['tracks'].forEach(track => {
+        track['notes'].sort((a, b) => {
+            return a.time - b.time;
+        });
+    });
+
     midi_json['tracks'].forEach((track, idx) => {
         if (track.notes.length > midi_json['tracks'][track_id].notes.length) {
             track_id = idx;
         }
     });
 
-    let time_offset = 0.5 - midi_json['tracks'][track_id].notes[0].time;
-
+    let multiplier = midi_json['header']['multiplier'] || 1.0;
+    let time_offset = 0.5 - midi_json['tracks'][track_id].notes[0].time * multiplier;
     let unmerged = midi_json['tracks'][track_id].notes.map(sound => {
         return {
             note_names: [sound.name],
-            time: sound.time + time_offset,
-            duration: sound.duration
+            time: sound.time * multiplier + time_offset,
+            duration: sound.duration * multiplier
         }
     });
     track = [];
@@ -67,108 +168,68 @@ function load_track(midi_json) {
 
 function synchronize() {
     // we assume that array of planks do change during the simulation
-    planks = API.get_planks();
-    while (planks_color.length < planks.length)
-        planks_color.push(BLUE);
+    if (!planks_loaded) {
+        planks = API.get_planks().map((p) => new Plank(p[0], p[1]));
+        if (ready) planks_loaded = true;
+    }
 
-    marbles = API.get_marbles();
-    marbles.forEach((marble, index) => {
-        if (marbles_trace[index] === undefined)
-            marbles_trace[index] = [];
-        marbles_trace[index].push(marble);
-        if (marbles_trace[index].length > TRACE_SIZE) {
-            marbles_trace[index].shift();
+    let collisions = API.get_marble_collisions();
+
+    API.get_marbles().forEach((m, i) => {
+        if (marbles[i]) {
+            marbles[i].synchronize(m, collisions[i]);
+        } else {
+            marbles[i] = new Marble(m);
         }
     });
-    collisions = API.get_marble_collisions();
 }
 
 function update() {
-    let sum_x = (marbles[0][1] > 2000 ? 0 : marbles[0][0]);
+    // shift background and camera
+    let sum_x = (marbles[0].position[1] > 2000 ? 0 : marbles[0].position[0]);
     let targetX = -sum_x + canvas.width / 2;
     offset[0] = (offset[0] * 0.98 + targetX * 0.02);
+    canvas.style.backgroundPosition = `${offset[0] / 2}px -10px`;
+    document.body.style.backgroundPosition = `${offset[0] / 4}px -10px`;
 
-    particles.forEach(p => {
-        p.time_left -= MS_PER_TICK;
-        p.position[0] += p.velocity[0];
-        p.position[1] += p.velocity[1];
-        p.velocity[1] += 0.5;
-    })
+    planks.forEach(p => p.update());
+
+    particles.forEach(p => p.update());
+
     particles = particles.filter(p => p.time_left >= 0);
 }
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    marbles.forEach((marble, index) => {
-        let color = (index === 0 ? RED : '#404040');
-        G.drawCircleFilled(marble, MARBLE_RADIUS + 1, color);
-        ctx.globalAlpha = 0.2;
-        let trace_len = marbles_trace[index].length;
-        for (let j = 0; j < trace_len; j++) {
-            G.drawCircleFilled(
-                marbles_trace[index][trace_len - j - 1],
-                MARBLE_RADIUS - j * RADIUS_DECAY - 1,
-                color
-            );
-        }
-        ctx.globalAlpha = 1.0;
-    });
+    marbles.forEach(m => m.draw());
 
-    planks.forEach((plank, index) => {
-        let color = planks_color[index];
-        G.drawLine(plank, color, PLANK_WIDTH * 2);
-        G.drawCircleFilled(plank[0], PLANK_WIDTH, color);
-        G.drawCircleFilled(plank[1], PLANK_WIDTH, color);
-    });
+    planks.forEach(p => p.draw());
 
-    particles.forEach(p => {
-        ctx.globalAlpha = Math.sqrt(p.time_left / p.time_total);
-        ctx.drawImage(
-            NOTE_IMAGES[p.image],
-            p.position[0] - PARTICLE_SIZE / 2 + offset[0],
-            p.position[1] - PARTICLE_SIZE / 2 + offset[1],
-            PARTICLE_SIZE,
-            PARTICLE_SIZE
-        );
-    })
-    ctx.globalAlpha = 1.0;
+    particles.forEach(p => p.draw());
+
 }
 
-function generate_particle(center, plank_index, big = false) {
+function generate_particle(center, plank_index) {
     let position = [center[0] + (Math.random() - 0.5) * 5, center[1] + (Math.random() - 0.5) * 5];
-    let velocity = [(Math.random() - 0.5) * 5, -Math.random() * 2 - 3];
-
-    particles.push({
-        image: (big ? 1 : 0),
-        time_total: track[plank_index].duration * 1000 * (big ? 3 : 2),
-        time_left: track[plank_index].duration * 1000 * (big ? 3 : 2),
-        velocity: velocity,
-        position: position
-    });
+    let velocity = [(Math.random() - 0.5) * 5, -Math.random() * 2 - 1];
+    particles.push(new Particle(position, velocity, track[plank_index].duration * 1000 * 3));
 }
 
 function play_sounds() {
     for (let i = 0; i < marbles.length; i++) {
-        let plank_index = collisions[i];
+        let plank_index = marbles[i].collision;
         if (plank_index === -1)
             continue;
-        if (i === 0) {
-            planks_color[plank_index] = RED;
-            console.log(plank_index);
-        }
         let plank = planks[plank_index];
-        let particle_position = [
-            (plank[0][0] + plank[1][0]) * 0.5,
-            (plank[0][1] + plank[1][1]) * 0.5
-        ];
+        let particle_position = [plank.center_x, plank.center_y];
+        plank.active = track[plank_index].duration * 1200;
         PIANO.triggerAttackRelease(track[plank_index].note_names, track[plank_index].duration);
-        for (let j = 0; j < track[plank_index].note_names.length; j++) {
+        for (let j = 0; j < track[plank_index].note_names.length * 3 + 4; j++) {
             generate_particle(particle_position, plank_index, j > 1);
         }
     }
 }
-
 
 let lastTime = Date.now();
 
@@ -198,7 +259,7 @@ function main_loop() {
 
 function run_all() {
     ready = false;
-    planks_color = [];
+    planks_loaded = false;
     API.init_generator();
     if (!main_loop_running) {
         main_loop();
@@ -213,6 +274,11 @@ window.addEventListener('load', () => {
         element.classList.add('music');
         element.innerText = m['header']['name'];
         element.onclick = () => {
+            let ch = list.children;
+            for(let j = 0; j < ch.length; j++) {
+                ch[j].classList.remove('active')
+            }
+            element.classList.add('active');
             load_track(music[i]);
             run_all();
         };

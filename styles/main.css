@@ -2,6 +2,13 @@ html, body {
     overflow: hidden;
     font-family: Verdana, serif;
     font-size: 24px;
+    background: url("../images/bg3.png");
+    background-size: 85%;
+}
+
+canvas {
+    background: url("../images/bg3-overlay.png");
+    background-size: 85%;
 }
 
 .btn {
@@ -15,18 +22,19 @@ html, body {
     border: 1px solid #101010;
     background-color: #CCCCCC;
 }
+
 .btn:active {
     background-color: #AAAAAA;
 }
 
 .container {
     position: relative;
-    background-color: #F0F0F0;
-    border: 1px solid #BBBBBB;
-    border-top: 0;
+    background-color: rgba(162, 170, 177, 0.3);
+    border: 1px solid #3d5f71;
+    border-bottom: 0;
     margin-left: -50%;
     box-sizing: border-box;
-    border-radius: 0 0 2px 2px;
+    border-radius: 2px 2px 0 0;
     display: inline-block;
     padding: 4px;
 }
@@ -40,40 +48,60 @@ html, body {
 #progress-bar {
     width: 0;
     height: 100%;
-    background-color: #2acd2a;
+    background-color: #ffffff;
 }
 
 #progress-bar-text {
     position: absolute;
     width: 100%;
-    top: 0;
+    bottom: 0;
     left: 0;
     text-align: center;
     font-size: 16px;
     line-height: 24px;
-    color: #0d400d;
+    color: #0d3440;
 }
 
 #music-list {
-    padding: 8px 0;
+    padding: 16px 0;
     position: absolute;
     left: 0;
     top: 64px;
-    background-color: #F0F0F0;
-    border: 1px solid #BBBBBB;
     border-left: 0;
     border-radius: 0 2px 2px 0;
 }
 
 .music {
+    background:linear-gradient(
+        to right,
+        rgba(162, 170, 177, 0.4),
+        rgba(162, 170, 177, 0.4),
+        rgba(162, 170, 177, 0.4),
+        transparent
+    );
+    border-top: 1px solid;
+    border-image:
+            linear-gradient(
+                    to right,
+                    #323232,
+                    transparent
+            ) 100% 1;
+
+    border-bottom: 1px solid #323232;
     font-size: 12px;
     width: 100%;
-    padding: 4px;
+    padding: 4px 16px;
     box-sizing: border-box;
 }
 
-.music:hover {
-    background-color: #666;
+.music:hover, .music.active {
+    background:linear-gradient(
+            to right,
+            rgba(62, 62, 62, 0.4),
+            rgba(62, 62, 62, 0.4),
+            rgba(62, 62, 62, 0.4),
+            transparent
+    );
     cursor: pointer;
     color: white;
 }
@@ -85,12 +113,12 @@ html, body {
     font-size: 9px;
     width: 200px;
     padding: 4px;
-    background-color: rgba(40, 40, 40, 0.2);
+    background-color: rgba(40, 40, 40, 0.4);
+    color: white;
 }
 
 #progress-bar-hint:hover {
-    color: white;
-    background-color: rgba(40, 40, 40, 0.8);
+    background-color: rgba(40, 40, 40, 0.9);
 }
 
 #github {

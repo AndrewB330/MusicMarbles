@@ -13,7 +13,7 @@ generated 2D map with obstacles.
 
 # Demo
 
-![UI](/images/ui_demo.png?raw=true)
+![UI](/images/ui_demo_v2.png?raw=true)
 
 Live demo is available by this link: https://andrewb330.github.io/MusicMarbles/index.html
 

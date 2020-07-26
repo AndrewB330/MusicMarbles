@@ -35,7 +35,18 @@ const NOTE_IMAGES = [new Image(), new Image()]
 NOTE_IMAGES[0].src = './images/note_1.png';
 NOTE_IMAGES[1].src = './images/note_2.png';
 
-const TRACE_SIZE = 30;
-const RADIUS_DECAY = 0.5;
+const PLANK_IMAGES = [new Image(), new Image()]
+PLANK_IMAGES[0].src = './images/plank.png';
+PLANK_IMAGES[1].src = './images/plank_active.png';
 
-const PARTICLE_SIZE = 30;
+const PARTICLE_IMAGE = new Image();
+PARTICLE_IMAGE.src = './images/particle.png';
+
+const MARBLE_IMAGE = new Image();
+MARBLE_IMAGE.src = './images/marble.png';
+
+const TRACE_SIZE = 60;
+const RADIUS_DECAY = 0.25;
+
+const PARTICLE_IMAGE_SIZE = 16;
+const MARBLE_IMAGE_SIZE = 60;
