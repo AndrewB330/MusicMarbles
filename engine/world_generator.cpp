@@ -41,7 +41,8 @@ std::vector<int> get_random_permutation(int n) {
 
 StackState::StackState(int pointer) : pointer(pointer) {}
 
-WorldGenerator::WorldGenerator(std::vector<int> track) : track(track) {
+WorldGenerator::WorldGenerator(std::vector<int> track,  double min_y, double max_y)
+: track(track), min_y(min_y), max_y(max_y), start_y(min_y - 10) {
     world_state.marbles.push_back(Marble{Vec2d(0, start_y)});
     world_state.start();
 }
@@ -54,7 +55,8 @@ WorldState WorldGenerator::get_world() {
     return res;
 }
 
-WorldGeneratorIterative::WorldGeneratorIterative(std::vector<int> track_) : WorldGenerator(track_) {
+WorldGeneratorIterative::WorldGeneratorIterative(std::vector<int> track, double min_y, double max_y)
+: WorldGenerator(track, min_y, max_y) {
     stack.push_back(StackState(-1));
 }
 
@@ -73,7 +75,6 @@ void WorldGeneratorIterative::generate(int iterations) {
         } else {
             num_iterations_no_improvement++;
         }
-
 
         StackState &stack_state = stack.back();
 

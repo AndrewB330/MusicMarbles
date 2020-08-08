@@ -37,11 +37,11 @@ class WorldGenerator {
 protected:
     std::vector<int> track;
     WorldState world_state;
-    double min_y = -350;
-    double max_y = 350;
-    double start_y = -360;
+    double start_y;
+    double min_y;
+    double max_y;
 public:
-    WorldGenerator(std::vector<int> track);
+    WorldGenerator(std::vector<int> track, double min_y = -350, double max_y = 350);
 
     /*
      * Returns a generated world. With 0 elapsed time and one marble at the beginning of the path
@@ -88,7 +88,7 @@ private:
     int max_planks_num_generated = 0;
     int num_iterations_no_improvement = 0;
 public:
-    WorldGeneratorIterative(std::vector<int> track);
+    WorldGeneratorIterative(std::vector<int> track, double min_y = -350, double max_y = 350);
 
     /*
      * Returns progress - number from 0 to 100. Where 100 - means generation is finished

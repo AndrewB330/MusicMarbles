@@ -26,6 +26,9 @@
 // World that is displayed on the frontend
 WorldState main_world;
 WorldGeneratorIterative generator({});
+double start_y = -360;
+double min_y = -350;
+double max_y = 350;
 
 
 const int MAX_TRACKS = 16;
@@ -50,7 +53,8 @@ int get_generator_progress() {
 }
 
 void init_generator() {
-    generator = WorldGeneratorIterative(TRACKS[0]);
+    generator = WorldGeneratorIterative(TRACKS[0], min_y, max_y);
+    start_y = min_y - 10;
 }
 
 /*
@@ -106,6 +110,14 @@ void add_time_of_hit(int track, int time) {
 void reset_tracks() {
     TRACKS.clear();
     TRACKS.resize(MAX_TRACKS);
+}
+
+void set_max_y(int y) {
+    max_y = y;
+}
+
+void set_min_y(int y) {
+    min_y = y;
 }
 
 }

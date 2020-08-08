@@ -258,6 +258,8 @@ function main_loop() {
 }
 
 function run_all() {
+    API.set_max_y(+canvas.height / 2 - 40);
+    API.set_min_y(-canvas.height / 2 + 40);
     ready = false;
     planks_loaded = false;
     API.init_generator();

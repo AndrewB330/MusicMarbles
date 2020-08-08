@@ -36,11 +36,13 @@ Module['onRuntimeInitialized'] = () => {
     API.get_marble = (i) => [API.get_marble_x(i), API.get_marble_y(i)];
     API.get_marbles = () => {
         let marbles = [];
-        for(let i = 0; i < API.num_marbles(); i++) {
+        for (let i = 0; i < API.num_marbles(); i++) {
             marbles.push(API.get_marble(i));
         }
         return marbles;
     }
+    API.set_max_y = Module.cwrap('set_max_y', null, ['number']);
+    API.set_min_y = Module.cwrap('set_min_y', null, ['number']);
     // planks getters
     API.num_planks = Module.cwrap('num_planks', 'number', []);
     API.get_plank_a_x = Module.cwrap('get_plank_a_x', 'number', ['number']);
@@ -50,7 +52,7 @@ Module['onRuntimeInitialized'] = () => {
     API.get_plank = (i) => [[API.get_plank_a_x(i), API.get_plank_a_y(i)], [API.get_plank_b_x(i), API.get_plank_b_y(i)]];
     API.get_planks = () => {
         let planks = [];
-        for(let i = 0; i < API.num_planks(); i++) {
+        for (let i = 0; i < API.num_planks(); i++) {
             planks.push(API.get_plank(i));
         }
         return planks;
@@ -59,7 +61,7 @@ Module['onRuntimeInitialized'] = () => {
     API.get_marble_collision = Module.cwrap('get_marble_collision', 'number', ['number']);
     API.get_marble_collisions = () => {
         let collisions = [];
-        for(let i = 0; i < API.num_marbles(); i++) {
+        for (let i = 0; i < API.num_marbles(); i++) {
             collisions.push(API.get_marble_collision(i));
         }
         return collisions;
