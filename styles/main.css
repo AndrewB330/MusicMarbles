@@ -117,6 +117,32 @@ canvas {
     color: white;
 }
 
+#play-button-container {
+    position: absolute;
+    right: 102%;
+    top: 0;
+    font-size: 9px;
+    width: 80px;
+    padding: 4px;
+    background-color: rgba(40, 40, 40, 0.4);
+    color: white;
+}
+
+#play-button {
+    background: transparent;
+    color: #afafaf;
+    font-weight: bold;
+    border-radius: 3px;
+    font-size: 16px;
+    padding: 3px;
+    text-align: center;
+}
+
+#play-button:hover {
+    color: white;
+    cursor: pointer;
+}
+
 #progress-bar-hint:hover {
     background-color: rgba(40, 40, 40, 0.9);
 }
