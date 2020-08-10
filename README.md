@@ -1,24 +1,29 @@
-# New video (https://youtu.be/rcDFb2OkA4Q)
 # Music Marbles 
+
+[![Generic badge](https://img.shields.io/badge/Javascript-brightgreen.svg)](https://github.com/AndrewB330/)
+[![Generic badge](https://img.shields.io/badge/Engine-С++-brightgreen.svg)](https://github.com/AndrewB330/)
+[![Generic badge](https://img.shields.io/badge/♥-WASM-brightgreen.svg)](https://github.com/AndrewB330/)
+[![Generic badge](https://img.shields.io/badge/Lines-1560-brightgreen.svg)](https://github.com/AndrewB330/)
 
 ![Logo](/images/logo_small_.png?raw=true)
 
 Creating music using falling marbles on automatically
 generated 2D map with obstacles.
 
-- Recursive map generator
-- Simplified physics engine
-- C++ for high performance
+#### Features
+- Iterative map generator
+- Simplified physic engine written on C++
 - Vanilla HTML5 Canvas for visualization
-- Tone.js for sounds
+- Tone.js for sound generation
+- Fully synchronized!
 
 # Demo
 
 ![UI](/images/ui_demo_v2.png?raw=true)
 
-Live demo is available by this link: https://andrewb330.github.io/MusicMarbles/index.html
+Live demo is available here: https://andrewb330.github.io/MusicMarbles/index.html
 
-YouTube video: https://youtu.be/rcDFb2OkA4Q
+**[New]** YouTube video: https://youtu.be/rcDFb2OkA4Q
 
 
 # Physics engine
@@ -48,7 +53,7 @@ while (state.elapsed_time > 0)
     state.rewind_back();
 ```
 
-### Algorithm
+# Algorithm
 
 The algorithm for generating a map is pretty straightforward. 
 We know moments of time, when we want a note to be played, 
@@ -57,8 +62,12 @@ Basically, the algorithm is just recursive brute-force.
 
 TODO: add pseudo code
 
-### Stack
 
-- JS
-- C++
-- WASM
+# How to add a melody
+If you have a .midi file you can convert it using https://tonejs.github.io/Midi to json and paste it inside `music/music.js` file.
+This solution is not perfect yet, working on custom midi uploading.
+
+# License
+[MIT License](https://github.com/AndrewB330/MusicMarbles/blob/master/LICENSE)
+
+Copyright (c) 2020 Andrii Borziak
