@@ -2,7 +2,6 @@
 
 [![Generic badge](https://img.shields.io/badge/Javascript-brightgreen.svg)](https://github.com/AndrewB330/)
 [![Generic badge](https://img.shields.io/badge/Engine-С++-brightgreen.svg)](https://github.com/AndrewB330/)
-[![Generic badge](https://img.shields.io/badge/♥-WASM-brightgreen.svg)](https://github.com/AndrewB330/)
 [![Generic badge](https://img.shields.io/badge/Lines-1560-brightgreen.svg)](https://github.com/AndrewB330/)
 
 ![Logo](/images/logo_small_.png?raw=true)
@@ -19,11 +18,10 @@ generated 2D map with obstacles.
 
 # Demo
 
+[LIVE Demo](https://andrewb330.github.io/MusicMarbles/index.html) <br>
+[YouTube Video](https://youtu.be/rcDFb2OkA4Q)
+
 ![UI](/images/ui_demo_v2.png?raw=true)
-
-Live demo is available here: https://andrewb330.github.io/MusicMarbles/index.html
-
-**[New]** YouTube video: https://youtu.be/rcDFb2OkA4Q
 
 
 # Physics engine
