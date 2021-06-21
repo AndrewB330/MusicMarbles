@@ -2,7 +2,7 @@
 
 [![Badge](https://img.shields.io/badge/Javascript-brightgreen.svg)](https://github.com/AndrewB330/)
 [![Badge](https://img.shields.io/badge/Engine-С++-brightgreen.svg)](https://github.com/AndrewB330/)
-[![Badge](https://europe-west6-xlocc-badge.cloudfunctions.net/XLOCC/AndrewB330/MusicMarbles?ifiles=music.)](https://github.com/AndrewB330/)
+<!--[![Badge](https://europe-west6-xlocc-badge.cloudfunctions.net/XLOCC/AndrewB330/MusicMarbles?ifiles=music.)](https://github.com/AndrewB330/)-->
 
 ![Logo](/images/logo_small_.png?raw=true)
 
